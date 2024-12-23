@@ -87,6 +87,9 @@ class Filesystem extends AbstractData
      */
     public function create($pasteid, array $paste)
     {
+        if(getenv("IS_READ_ONLY") == "true")
+            return false;
+
         $storagedir = $this->_dataid2path($pasteid);
         $file       = $storagedir . $pasteid . '.php';
         if (is_file($file)) {
@@ -190,6 +193,9 @@ class Filesystem extends AbstractData
      */
     public function createComment($pasteid, $parentid, $commentid, array $comment)
     {
+        if(getenv("IS_READ_ONLY") == "true")
+            return false;
+
         $storagedir = $this->_dataid2discussionpath($pasteid);
         $file       = $storagedir . $pasteid . '.' . $commentid . '.' . $parentid . '.php';
         if (is_file($file)) {
@@ -447,6 +453,9 @@ class Filesystem extends AbstractData
      */
     private function _store($filename, array $data)
     {
+        if(getenv("IS_READ_ONLY") == "true")
+            return false;
+
         try {
             return $this->_storeString(
                 $filename,
@@ -467,6 +476,9 @@ class Filesystem extends AbstractData
      */
     private function _storeString($filename, $data)
     {
+        if(getenv("IS_READ_ONLY") == "true")
+            return false;
+
         // Create storage directory if it does not exist.
         if (!is_dir($this->_path)) {
             if (!@mkdir($this->_path, 0700)) {

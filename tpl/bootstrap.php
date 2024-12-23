@@ -59,6 +59,7 @@ endif;
 		<?php $this->_scriptTag('js/base-x-4.0.0.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/rawinflate-0.3.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/bootstrap-3.4.1.js', 'defer'); ?>
+		<?php $this->_scriptTag('js/login.js', 'async'); ?>
 <?php
 if ($SYNTAXHIGHLIGHTING) :
 ?>
@@ -202,6 +203,11 @@ endif;
 					<li>
 						<button id="retrybutton" type="button" class="reloadlink hidden btn btn-<?php echo $isDark ? 'warning' : 'primary'; ?> navbar-btn">
 							<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> <?php echo I18n::_('Retry'), PHP_EOL; ?>
+						</button>
+					</li>
+					<li>
+						<button id="<?=getenv("IS_READ_ONLY") == "true" ? "loginButton" : "logoutButton"?>" type="button" class="reloadlink btn btn-<?php echo $isDark ? 'warning' : 'primary'; ?> navbar-btn">
+							<?=getenv("IS_READ_ONLY") == "true" ? "Login" : "Logout"?>
 						</button>
 					</li>
 					<li>

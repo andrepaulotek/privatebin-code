@@ -17,7 +17,7 @@ require('./prettify');
 global.prettyPrint = window.PR.prettyPrint;
 global.prettyPrintOne = window.PR.prettyPrintOne;
 global.showdown = require('./showdown-2.1.0');
-global.DOMPurify = require('./purify-3.1.7');
+global.DOMPurify = require('./purify-3.2.4');
 global.baseX = require('./base-x-4.0.0').baseX;
 global.Legacy = require('./legacy').Legacy;
 require('./bootstrap-3.4.1');
@@ -151,4 +151,23 @@ exports.urlToString = function (url) {
     return url.schema + '://' + url.address.join('') + '/' + (url.query ? '?' +
         encodeURI(url.query.join('').replace(/^&+|&+$/gm,'')) : '') +
         (url.fragment ? '#' + encodeURI(url.fragment) : '');
+};
+
+exports.enableClipboard = function () {
+    navigator.clipboard = (function () {
+        let savedText = "";
+
+        async function writeText(text) {
+            savedText = text;
+        };
+
+        async function readText() {
+            return savedText;
+        };
+
+        return {
+            writeText,
+            readText,
+        };
+    })();
 };

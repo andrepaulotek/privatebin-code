@@ -763,6 +763,11 @@ class ConnectionInterfaceStub implements ConnectionInterface
         throw new BadMethodCallException('not supported by this stub');
     }
 
+    public function restoreBucket(array $args = array())
+    {
+        throw new BadMethodCallException('not supported by this stub');
+    }
+
     public function getBucket(array $args = array())
     {
         throw new BadMethodCallException('not supported by this stub');
@@ -919,11 +924,10 @@ class StorageClientStub extends StorageClient
         $this->_connection =  new ConnectionInterfaceStub();
     }
 
-    public function bucket($name, $userProject = false)
+    public function bucket($name, $userProject = false, array $config = array())
     {
         if (!key_exists($name, self::$_buckets)) {
-            $b                     = new BucketStub($this->_connection, $name, array(), $this);
-            self::$_buckets[$name] = $b;
+            self::$_buckets[$name] = new BucketStub($this->_connection, $name, array(), $this);
         }
         return self::$_buckets[$name];
     }

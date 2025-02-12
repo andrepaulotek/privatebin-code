@@ -1,5 +1,16 @@
 # PrivateBin version history
 
+## 1.7.6 (2025-02-01)
+* ADDED: Ability to copy the paste by clicking the copy icon button or using the keyboard shortcut ctrl+c/cmd+c (#1390 & #12)
+* CHANGED: Allow toggling tab-key-support using `[Ctrl]+[m]` or `[Esc]` in textarea for keyboard navigation (#1386)
+* CHANGED: Switched to WASM streaming and replace unsafe-eval with wasm-unsafe-eval CSP declaration (#1464), requires webserver to have `application/wasm` MIME type configured.
+* CHANGED: Replaced usage of strpos with str_starts_with & str_contains (#1373)
+* CHANGED: Added polyfill libraries for ctype, str_starts_with & str_contains functions (#1476)
+* CHANGED: Turned paste delete link into a button (#266)
+* CHANGED: Upgrading libraries to: DOMpurify 3.2.4, cloud-storage 1.45.0, aws-sdk-php 3.336.2
+* CHANGED: `bootstrap5` template UI improvements
+* FIXED: Redirect to the home page after changing the language (#92)
+
 ## 1.7.5 (2024-11-16)
 * ADDED: Allow non persistent SQL connections, if configured (#1394)
 * ADDED: Show a button (that redirects to the `basepath` URL) inside the alert after a paste is deleted

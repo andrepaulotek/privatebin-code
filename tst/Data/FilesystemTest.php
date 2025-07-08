@@ -45,11 +45,11 @@ class FilesystemTest extends TestCase
         $this->assertEquals($paste, $this->_model->read(Helper::getPasteId()));
 
         // storing comments
-        $this->assertFalse($this->_model->existsComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId()), 'comment does not yet exist');
-        $this->assertTrue($this->_model->createComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId(), Helper::getComment()), 'store comment');
-        $this->assertTrue($this->_model->existsComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId()), 'comment exists after storing it');
-        $this->assertFalse($this->_model->createComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId(), Helper::getComment()), 'unable to store the same comment twice');
         $comment             = Helper::getComment();
+        $this->assertFalse($this->_model->existsComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId()), 'comment does not yet exist');
+        $this->assertTrue($this->_model->createComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId(), $comment), 'store comment');
+        $this->assertTrue($this->_model->existsComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId()), 'comment exists after storing it');
+        $this->assertFalse($this->_model->createComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId(), $comment), 'unable to store the same comment twice');
         $comment['id']       = Helper::getCommentId();
         $comment['parentid'] = Helper::getPasteId();
         $this->assertEquals(
@@ -94,7 +94,8 @@ class FilesystemTest extends TestCase
             if (in_array($key, array('x', 'y', 'z'))) {
                 $this->assertTrue($this->_model->create($ids[$key], $paste), "store $key paste");
             } elseif ($key === 'x') {
-                $this->assertTrue($this->_model->create($ids[$key], Helper::getPaste()), "store $key paste");
+                $data = Helper::getPaste();
+                $this->assertTrue($this->_model->create($ids[$key], $data), "store $key paste");
             } else {
                 $this->assertTrue($this->_model->create($ids[$key], $expired), "store $key paste");
             }
@@ -124,9 +125,10 @@ class FilesystemTest extends TestCase
     public function testCommentErrorDetection()
     {
         $this->_model->delete(Helper::getPasteId());
+        $data    = Helper::getPaste();
         $comment = Helper::getComment(1, array('nickname' => "Invalid UTF-8 sequence: \xB1\x31"));
         $this->assertFalse($this->_model->exists(Helper::getPasteId()), 'paste does not yet exist');
-        $this->assertTrue($this->_model->create(Helper::getPasteId(), Helper::getPaste()), 'store new paste');
+        $this->assertTrue($this->_model->create(Helper::getPasteId(), $data), 'store new paste');
         $this->assertTrue($this->_model->exists(Helper::getPasteId()), 'paste exists after storing it');
         $this->assertFalse($this->_model->existsComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId()), 'comment does not yet exist');
         $this->assertFalse($this->_model->createComment(Helper::getPasteId(), Helper::getPasteId(), Helper::getCommentId(), $comment), 'unable to store broken comment');
@@ -174,6 +176,20 @@ class FilesystemTest extends TestCase
             $comment['id']       = $commentid;
             $comment['parentid'] = $dataid;
             $this->assertEquals($this->_model->readComments($dataid), array($comment['meta']['created'] => $comment), "comment of $dataid wasn't modified in the conversion");
+        }
+    }
+
+    public function testValueFileErrorHandling()
+    {
+        define('VALID', 'valid content');
+        foreach (array('purge_limiter', 'salt', 'traffic_limiter') as $namespace) {
+            file_put_contents($this->_invalidPath . DIRECTORY_SEPARATOR . $namespace . '.php', 'invalid content');
+            $model = new Filesystem(array('dir' => $this->_invalidPath));
+            ob_start(); // hide "invalid content", when file gets included
+            $this->assertEquals($model->getValue($namespace), '', 'empty default value returned, invalid content ignored');
+            ob_end_clean();
+            $this->assertTrue($model->setValue(VALID, $namespace), 'setting valid value');
+            $this->assertEquals($model->getValue($namespace), VALID, 'valid value returned');
         }
     }
 }

@@ -55,7 +55,7 @@ if ($ZEROBINCOMPATIBILITY) :
 <?php
 endif;
 ?>
-		<?php $this->_scriptTag('js/zlib-1.3.1.js', 'async'); ?>
+		<?php $this->_scriptTag('js/zlib-1.3.1-1.js', 'async'); ?>
 		<?php $this->_scriptTag('js/base-x-4.0.0.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/rawinflate-0.3.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/bootstrap-3.4.1.js', 'defer'); ?>
@@ -72,7 +72,7 @@ if ($MARKDOWN) :
 <?php
 endif;
 ?>
-		<?php $this->_scriptTag('js/purify-3.2.4.js', 'async'); ?>
+		<?php $this->_scriptTag('js/purify-3.2.6.js', 'async'); ?>
 		<?php $this->_scriptTag('js/legacy.js', 'async'); ?>
 		<?php $this->_scriptTag('js/privatebin.js', 'defer'); ?>
 		<!-- icon -->
@@ -392,7 +392,7 @@ if ($FILEUPLOAD) :
 						<ul class="dropdown-menu">
 							<li id="filewrap">
 								<div>
-									<input type="file" id="file" name="file" />
+									<input type="file" id="file" name="file" multiple />
 								</div>
 								<div id="dragAndDropFileName" class="dragAndDropFile"><?php echo I18n::_('alternatively drag & drop a file or paste an image from the clipboard'); ?></div>
 							</li>
@@ -464,6 +464,28 @@ if (!empty($LANGUAGESELECTION)) :
 <?php
 endif;
 ?>
+<?php
+if (!empty($TEMPLATESELECTION)) :
+?>
+					<li id="template" class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo I18n::_('Theme'); ?>: <?php echo $TEMPLATESELECTION; ?> <span class="caret"></span></a>
+						<ul class="dropdown-menu dropdown-menu-right">
+<?php
+    foreach ($TEMPLATES as $value) :
+?>
+							<li>
+								<a href="#" data-template="<?php echo $value; ?>">
+									<?php echo $value; ?>
+								</a>
+							</li>
+<?php
+    endforeach;
+?>
+						</ul>
+					</li>
+<?php
+endif;
+?>
 				</ul>
 			</div>
 		<?php
@@ -489,10 +511,7 @@ endif;
 <?php
 if ($FILEUPLOAD) :
 ?>
-				<div id="attachment" role="alert" class="hidden alert alert-info">
-					<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-					<a class="alert-link"><?php echo I18n::_('Download attachment'); ?></a>
-				</div>
+				<div id="attachment" class="hidden"></div>
 <?php
 endif;
 ?>
@@ -559,8 +578,8 @@ if (!empty($URLSHORTENER)) :
 ?>
 					<p>
 						<button id="shortenbutton" data-shortener="<?php echo I18n::encode($URLSHORTENER); ?>" type="button" class="btn btn-<?php echo $isDark ? 'warning' : 'primary'; ?> btn-block">
-						<span class="glyphicon glyphicon-send" aria-hidden="true"></span> <?php echo I18n::_('Shorten URL'), PHP_EOL; ?>
-					</button>
+							<span class="glyphicon glyphicon-send" aria-hidden="true"></span> <?php echo I18n::_('Shorten URL'), PHP_EOL; ?>
+						</button>
 					</p>
 					<div role="alert" class="alert alert-danger">
 						<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -640,9 +659,6 @@ endif;
 				</div>
 			</footer>
 		</main>
-<?php
-if ($DISCUSSION) :
-?>
 		<div id="serverdata" class="hidden" aria-hidden="true">
 			<div id="templates">
 				<article id="commenttemplate" class="comment">
@@ -664,11 +680,12 @@ if ($DISCUSSION) :
 					</div>
 					<button id="replybutton" class="btn btn-default btn-sm"><?php echo I18n::_('Post comment'); ?></button>
 				</div>
+				<div id="attachmenttemplate" role="alert" class="attachment hidden alert alert-info">
+					<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+					<a class="alert-link"><?php echo I18n::_('Download attachment'); ?></a>
+				</div>
 			</div>
 		</div>
-<?php
-endif;
-?>
 <?php
 if ($FILEUPLOAD) :
 ?>

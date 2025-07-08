@@ -22,7 +22,6 @@ for more information.
 ### Minimal Requirements
 
 - PHP version 7.3 or above
-- ctype extension
 - GD extension (when using identicon or vizhash icons, jdenticon works without it)
 - zlib extension
 - some disk space or a database supported by [PDO](https://php.net/manual/book.pdo.php)
@@ -201,7 +200,7 @@ CREATE INDEX parent ON prefix_comment(pasteid);
 CREATE TABLE prefix_config (
     id CHAR(16) NOT NULL, value TEXT, PRIMARY KEY (id)
 );
-INSERT INTO prefix_config VALUES('VERSION', '1.7.6');
+INSERT INTO prefix_config VALUES('VERSION', '1.7.8');
 ```
 
 In **PostgreSQL**, the `data`, `attachment`, `nickname` and `vizhash` columns

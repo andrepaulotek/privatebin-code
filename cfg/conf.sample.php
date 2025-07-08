@@ -42,13 +42,28 @@ defaultformatter = "plaintext"
 ; size limit per paste or comment in bytes, defaults to 10 Mebibytes
 sizelimit = 10485760
 
-; template to include, default is "bootstrap" (tpl/bootstrap.php), also
+; by default PrivateBin use "bootstrap" template (tpl/bootstrap.php).
+; Optionally you can enable the template selection menu, which uses
+; a session cookie to store the choice until the browser is closed.
+templateselection = false
+
+; List of available for selection templates when "templateselection" option is enabled
+availabletemplates[] = "bootstrap"
+availabletemplates[] = "bootstrap-page"
+availabletemplates[] = "bootstrap-dark"
+availabletemplates[] = "bootstrap-dark-page"
+availabletemplates[] = "bootstrap-compact"
+availabletemplates[] = "bootstrap-compact-page"
+availabletemplates[] = "bootstrap5"
+availabletemplates[] = "page"
+
+; set the template your installs defaults to, defaults to "bootstrap" (tpl/bootstrap.php), also
 ; available are "page" (tpl/page.php), the classic ZeroBin style and several
 ; bootstrap variants: "bootstrap-dark", "bootstrap-compact", "bootstrap-page",
-; which can be combined with "-dark" and "-compact" for "bootstrap-dark-page"
-; and finally "bootstrap-compact-page" - previews at:
+; which can be combined with "-dark" and "-compact" for "bootstrap-dark-page",
+; "bootstrap-compact-page" and finally "bootstrap5" (tpl/bootstrap5.php) - previews at:
 ; https://privatebin.info/screenshots.html
-template = "bootstrap"
+; template = "bootstrap"
 
 ; (optional) info text to display
 ; use single, instead of double quotes for HTML attributes
@@ -103,7 +118,15 @@ languageselection = false
 ;   for details.
 ; - The 'wasm-unsafe-eval' is used to enable webassembly support (used for zlib
 ;   compression). You can remove it if compression doesn't need to be supported.
-; cspheader = "default-src 'none'; base-uri 'self'; form-action 'none'; manifest-src 'self'; connect-src * blob:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; frame-ancestors 'none'; img-src 'self' data: blob:; media-src blob:; object-src blob:; sandbox allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads"
+; - The 'unsafe-inline' style-src is used by Chrome when displaying PDF previews
+;   and can be omitted if attachment upload is disabled (which is the default).
+;   See https://issues.chromium.org/issues/343754409
+; - To allow displaying PDF previews in Firefox or Chrome, sandboxing must also
+;   get turned off. The following CSP allows PDF previews:
+; cspheader = "default-src 'none'; base-uri 'self'; form-action 'none'; manifest-src 'self'; connect-src * blob:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; frame-src blob:; img-src 'self' data: blob:; media-src blob:; object-src blob:"
+;
+; The recommended and default used CSP is:
+; cspheader = "default-src 'none'; base-uri 'self'; form-action 'none'; manifest-src 'self'; connect-src * blob:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; font-src 'self'; frame-ancestors 'none'; frame-src blob:; img-src 'self' data: blob:; media-src blob:; object-src blob:; sandbox allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads"
 
 ; stay compatible with PrivateBin Alpha 0.19, less secure
 ; if enabled will use base64.js version 1.7 instead of 2.1.9 and sha1 instead of

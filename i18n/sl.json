@@ -164,6 +164,14 @@
     "EiB": "EB",
     "ZiB": "ZB",
     "YiB": "YB",
+    "kB": "kB",
+    "MB": "MB",
+    "GB": "GB",
+    "TB": "TB",
+    "PB": "PB",
+    "EB": "EB",
+    "ZB": "ZB",
+    "YB": "YB",
     "Format": "Format",
     "Plain Text": "Surov tekst",
     "Source Code": "Odprta koda",
@@ -226,5 +234,6 @@
     "Copy link": "Copy link",
     "Link copied to clipboard": "Link copied to clipboard",
     "Paste text": "Paste text",
-    "Tabulator key serves as character (Hit <kbd>Ctrl</kbd>+<kbd>m</kbd> or <kbd>Esc</kbd> to toggle)": "Tabulator key serves as character (Hit <kbd>Ctrl</kbd>+<kbd>m</kbd> or <kbd>Esc</kbd> to toggle)"
+    "Tabulator key serves as character (Hit <kbd>Ctrl</kbd>+<kbd>m</kbd> or <kbd>Esc</kbd> to toggle)": "Tabulator key serves as character (Hit <kbd>Ctrl</kbd>+<kbd>m</kbd> or <kbd>Esc</kbd> to toggle)",
+    "Theme": "Theme"
 }

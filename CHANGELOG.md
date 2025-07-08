@@ -1,5 +1,22 @@
 # PrivateBin version history
 
+## 1.7.8 (2025-06-30)
+* FIXED: Duplicate attachment for every comment (#1577)
+* FIXED: Attachments with empty file names (#1577)
+* FIXED: Page template scripts loading order (#1579)
+
+## 1.7.7 (2025-06-28)
+* ADDED: Switching templates using the web ui (#1501)
+* ADDED: Show file name and size on download page (#603)
+* CHANGED: Passing large data structures by reference to reduce memory consumption (#858)
+* CHANGED: Removed use of ctype functions and polyfill library for ctype
+* CHANGED: Upgrading libraries to: DOMpurify 3.2.6, ip-lib 1.20.0
+* CHANGED: Support for multiple file uploads (#1060)
+* CHANGED: Documented CSP change necessary to allow PDF attachment preview (#1552)
+* FIXED: Hide Reply button in the discussions once clicked to avoid losing the text input (#1508)
+* FIXED: Bump zlib library suffix, ensuring cache refresh for WASM streaming change
+* FIXED: Handle undefined globals in file based persisted values (#1544)
+
 ## 1.7.6 (2025-02-01)
 * ADDED: Ability to copy the paste by clicking the copy icon button or using the keyboard shortcut ctrl+c/cmd+c (#1390 & #12)
 * CHANGED: Allow toggling tab-key-support using `[Ctrl]+[m]` or `[Esc]` in textarea for keyboard navigation (#1386)

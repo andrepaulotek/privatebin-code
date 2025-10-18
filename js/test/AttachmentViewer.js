@@ -12,6 +12,7 @@ describe('AttachmentViewer', function () {
             'string',
             'string',
             'string',
+             // eslint-disable-next-line complexity
             function (mimeType, rawdata, filename, prefix, postfix) {
                 let clean = jsdom(),
                     data = 'data:' + mimeType + ';base64,' + common.btoa(rawdata),
@@ -24,8 +25,12 @@ describe('AttachmentViewer', function () {
                     ),
                     results = [],
                     result = '';
+                // text node of attachment will truncate at null byte
+                if (filename === '\u0000') {
+                    filename = '';
+                }
                 prefix  = prefix.replace(/%(s|d)/g, '%%');
-                postfix = postfix.replace(/%(s|d)/g, '%%');
+                postfix = postfix.replace(/%(s|d)/g, '%%').replace(/<|>/g, '');
                 $('body').html(
                     '<div id="attachmentPreview" class="col-md-12 text-center hidden"></div>' +
                     '<div id="attachment" class="hidden"></div>' +
@@ -126,4 +131,3 @@ describe('AttachmentViewer', function () {
         );
     });
 });
-

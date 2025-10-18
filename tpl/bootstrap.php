@@ -46,34 +46,28 @@ endif;
 <?php
 if ($QRCODE) :
 ?>
-		<?php $this->_scriptTag('js/kjua-0.9.0.js', 'async'); ?>
-<?php
-endif;
-if ($ZEROBINCOMPATIBILITY) :
-?>
-		<?php $this->_scriptTag('js/base64-1.7.js', 'async'); ?>
+		<?php $this->_scriptTag('js/kjua-0.10.0.js', 'defer'); ?>
 <?php
 endif;
 ?>
-		<?php $this->_scriptTag('js/zlib-1.3.1-1.js', 'async'); ?>
-		<?php $this->_scriptTag('js/base-x-4.0.0.js', 'defer'); ?>
-		<?php $this->_scriptTag('js/rawinflate-0.3.js', 'defer'); ?>
+		<?php $this->_scriptTag('js/zlib-1.3.1-1.js', 'defer'); ?>
+		<?php $this->_scriptTag('js/base-x-5.0.1.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/bootstrap-3.4.1.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/login.js', 'async'); ?>
 <?php
 if ($SYNTAXHIGHLIGHTING) :
 ?>
-		<?php $this->_scriptTag('js/prettify.js', 'async'); ?>
+		<?php $this->_scriptTag('js/prettify.js', 'defer'); ?>
 <?php
 endif;
 if ($MARKDOWN) :
 ?>
-		<?php $this->_scriptTag('js/showdown-2.1.0.js', 'async'); ?>
+		<?php $this->_scriptTag('js/showdown-2.1.0.js', 'defer'); ?>
 <?php
 endif;
 ?>
-		<?php $this->_scriptTag('js/purify-3.2.6.js', 'async'); ?>
-		<?php $this->_scriptTag('js/legacy.js', 'async'); ?>
+		<?php $this->_scriptTag('js/purify-3.2.7.js', 'defer'); ?>
+		<?php $this->_scriptTag('js/legacy.js', 'defer'); ?>
 		<?php $this->_scriptTag('js/privatebin.js', 'defer'); ?>
 		<!-- icon -->
 		<link rel="apple-touch-icon" href="<?php echo I18n::encode($BASEPATH); ?>img/apple-touch-icon.png" sizes="180x180" />
@@ -115,8 +109,13 @@ if (count($class)) {
 					<div class="modal-body">
 						<form id="passwordform" role="form">
 							<div class="form-group">
-								<label for="passworddecrypt"><span class="glyphicon glyphicon-eye-open"></span> <?php echo I18n::_('Please enter the password for this paste:') ?></label>
-								<input id="passworddecrypt" type="password" class="form-control" placeholder="<?php echo I18n::_('Enter password') ?>" required="required">
+								<label for="passworddecrypt"><span class="glyphicon glyphicon-eye-open"></span> <?php echo I18n::_('Please enter the password for this document:') ?></label>
+								<div class="input-group">
+									<input id="passworddecrypt" type="password" class="form-control input-password" placeholder="<?php echo I18n::_('Enter password') ?>" required="required">
+									<div class="input-group-addon toggle-password" type="button" title="<?php echo I18n::_('Show password'); ?>" aria-label="<?php echo I18n::_('Show password'); ?>">
+										<span class="glyphicon glyphicon-eye-open"></span>
+									</div>
+								</div>
 							</div>
 							<button type="submit" class="btn btn-success btn-block"><span class="glyphicon glyphicon-off"></span> <?php echo I18n::_('Decrypt') ?></button>
 						</form>
@@ -230,7 +229,7 @@ endif;
 							<span class="glyphicon glyphicon-text-background" aria-hidden="true"></span> <?php echo I18n::_('Raw text'), PHP_EOL; ?>
 						</button>
 						<button id="downloadtextbutton" type="button" class="hidden btn btn-<?php echo $isDark ? 'warning' : 'default'; ?> navbar-btn">
-							<span class="glyphicon glyphicon glyphicon-download-alt" aria-hidden="true"></span> <?php echo I18n::_('Save paste'), PHP_EOL; ?>
+							<span class="glyphicon glyphicon glyphicon-download-alt" aria-hidden="true"></span> <?php echo I18n::_('Save document'), PHP_EOL; ?>
 						</button>
 <?php
 if ($EMAIL) :
@@ -380,7 +379,12 @@ if ($PASSWORD) :
 ?>
 					<li>
 						<div id="password" class="navbar-form hidden">
-							<input type="password" id="passwordinput" placeholder="<?php echo I18n::_('Password (recommended)'); ?>" class="form-control" size="23" />
+							<div class="password-peek-container">
+								<input type="password" id="passwordinput" placeholder="<?php echo I18n::_('Password (recommended)'); ?>" class="form-control input-password" size="23" />
+								<div class="input-group-addon toggle-password" type="button" title="<?php echo I18n::_('Show password'); ?>" aria-label="<?php echo I18n::_('Show password'); ?>">
+									<span class="glyphicon glyphicon-eye-open"></span>
+								</div>
+							</div>
 						</div>
 					</li>
 <?php
@@ -577,12 +581,20 @@ endif;
 if (!empty($URLSHORTENER)) :
 ?>
 					<p>
-						<button id="shortenbutton" data-shortener="<?php echo I18n::encode($URLSHORTENER); ?>" type="button" class="btn btn-<?php echo $isDark ? 'warning' : 'primary'; ?> btn-block">
+						<button id="shortenbutton" data-shortener="<?php echo I18n::encode($URLSHORTENER); ?>"
+								<?php if ($SHORTENBYDEFAULT) : ?>
+								data-autoshorten="true"
+								<?php endif; ?>
+								type="button" class="btn btn-<?php echo $isDark ? 'warning' : 'primary'; ?> btn-block"
+						>
 							<span class="glyphicon glyphicon-send" aria-hidden="true"></span> <?php echo I18n::_('Shorten URL'), PHP_EOL; ?>
 						</button>
 					</p>
 					<div role="alert" class="alert alert-danger">
 						<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+						<?php if ($SHORTENBYDEFAULT) : ?>
+							<?php echo I18n::_('URL shortener is enabled by default.'), PHP_EOL; ?>
+						<?php endif; ?>
 						<?php echo I18n::_('URL shortener may expose your decrypt key in URL.'), PHP_EOL; ?>
 					</div>
 <?php
@@ -610,7 +622,7 @@ endif;
 			</section>
 			<section class="container">
 				<article class="row">
-					<div id="placeholder" class="col-md-12 hidden"><?php echo I18n::_('+++ no paste text +++'); ?></div>
+					<div id="placeholder" class="col-md-12 hidden"><?php echo I18n::_('+++ no document text +++'); ?></div>
 					<div id="attachmentPreview" class="col-md-12 text-center hidden"></div>
 					<h5 id="copyShortcutHint" class="col-md-12"><small id="copyShortcutHintText"></small></h5>
 					<div id="prettymessage" class="col-md-12 hidden">
@@ -649,7 +661,7 @@ endif;
 					<p class="col-md-1 col-xs-4 text-center"><?php echo $VERSION; ?></p>
 					<p id="aboutbox" class="col-md-6 col-xs-12">
 						<?php echo sprintf(
-                            I18n::_('%s is a minimalist, open source online pastebin where the server has zero knowledge of pasted data. Data is encrypted/decrypted %sin the browser%s using 256 bits AES.',
+                            I18n::_('%s is a minimalist, open source online pastebin where the server has zero knowledge of stored data. Data is encrypted/decrypted %sin the browser%s using 256 bits AES.',
                                 I18n::_($NAME),
                                 '%s', '%s'
                             ),

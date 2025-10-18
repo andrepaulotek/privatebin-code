@@ -82,7 +82,8 @@ describe('Helper', function () {
             'ignores non-URL content',
             'string',
             function (content) {
-                content = content.replace(/\r|\f/g, '\n').replace(/\u0000/g, '').replace(/\u000b/g, '');
+                // eslint-disable-next-line no-control-regex
+                content = content.replace(/\r|\f/g, '\n').replace(/\u0000|\u000b/g, '');
                 let clean = jsdom();
                 $('body').html('<div id="foo"></div>');
                 let e = $('#foo');
@@ -100,7 +101,9 @@ describe('Helper', function () {
             jsc.array(common.jscHashString()),
             'string',
             function (prefix, url, fragment, postfix) {
-                prefix = prefix.replace(/\r|\f/g, '\n').replace(/\u0000/g, '').replace(/\u000b/g, '');
+                // eslint-disable-next-line no-control-regex
+                prefix = prefix.replace(/\r|\f/g, '\n').replace(/\u0000|\u000b/g, '');
+                // eslint-disable-next-line no-control-regex
                 postfix  = ' ' + postfix.replace(/\r/g, '\n').replace(/\u0000/g, '');
                 url.fragment = fragment.join('');
                 let urlString = common.urlToString(url),
@@ -132,9 +135,11 @@ describe('Helper', function () {
             jsc.array(common.jscQueryString()),
             'string',
             function (prefix, query, postfix) {
-                prefix = prefix.replace(/\r|\f/g, '\n').replace(/\u0000/g, '').replace(/\u000b/g, '');
+                // eslint-disable-next-line no-control-regex
+                prefix = prefix.replace(/\r|\f/g, '\n').replace(/\u0000|\u000b/g, '');
+                // eslint-disable-next-line no-control-regex
                 postfix = ' ' + postfix.replace(/\r/g, '\n').replace(/\u0000/g, '');
-                let url  = 'magnet:?' + query.join('').replace(/^&+|&+$/gm,''),
+                let url  = 'magnet:?' + query.join('').replace(/^&+|&+$/gm, ''),
                     clean = jsdom();
                 $('body').html('<div id="foo"></div>');
                 let e = $('#foo');
@@ -300,21 +305,49 @@ describe('Helper', function () {
             return $.PrivateBin.Helper.formatBytes(500) === '500 B';
         });
 
-        jsc.property('formats kibibytes correctly', function () {
-            return $.PrivateBin.Helper.formatBytes(1500) === '1.46 KiB';
+        jsc.property('formats kilobytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(1500) === '1.5 kB';
         });
 
-        jsc.property('formats mebibytes correctly', function () {
-            return $.PrivateBin.Helper.formatBytes(2 * 1000 * 1000) === '1.91 MiB';
+        jsc.property('formats megabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(2 * 1000 * 1000) === '2 MB';
         });
 
-        jsc.property('formats gibibytes correctly', function () {
-            return $.PrivateBin.Helper.formatBytes(3.45 * 1000 * 1000 * 1000) === '3.21 GiB';
+        jsc.property('formats gigabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(3.45 * 1000 * 1000 * 1000) === '3.45 GB';
+        });
+
+        jsc.property('formats terabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(1.75 * 1000 ** 4) === '1.75 TB';
+        });
+
+        jsc.property('formats petabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(1.5 * 1000 ** 5) === '1.5 PB';
+        });
+
+        jsc.property('formats exabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(1.2345 * 1000 ** 6).startsWith('1.23 EB');
+        });
+
+        jsc.property('formats yottabytes correctly', function () {
+            return $.PrivateBin.Helper.formatBytes(1.23 * 1000 ** 8).startsWith('1.23 YB');
         });
 
         jsc.property('rounds to two decimal places', function () {
-            return $.PrivateBin.Helper.formatBytes(1234567) === '1.18 MiB';
+            return $.PrivateBin.Helper.formatBytes(1234567) === '1.23 MB';
+        });
+    });
+
+
+    describe('isBootstrap5', function () {
+        jsc.property('Bootstrap 5 has been detected', function () {
+            global.bootstrap = {};
+            return $.PrivateBin.Helper.isBootstrap5() === true;
+        });
+
+        jsc.property('Bootstrap 5 has not been detected', function () {
+            delete global.bootstrap;
+            return $.PrivateBin.Helper.isBootstrap5() === false;
         });
     });
 });
-

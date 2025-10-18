@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Identicon\Identicon;
+use Jdenticon\Identicon;
 use PHPUnit\Framework\TestCase;
 use PrivateBin\Configuration;
 use PrivateBin\Data\Database;
@@ -101,57 +101,6 @@ class ModelTest extends TestCase
         $paste = $this->_model->getPaste(Helper::getPasteId());
         $this->assertFalse($paste->exists(), 'paste successfully deleted');
         $this->assertEquals(array(), $paste->getComments(), 'comment was deleted with paste');
-    }
-
-    public function testPasteV1()
-    {
-        $pasteData = Helper::getPaste(1);
-        unset($pasteData['meta']['formatter']);
-
-        $path = $this->_path . DIRECTORY_SEPARATOR . 'v1-test.sq3';
-        if (is_file($path)) {
-            unlink($path);
-        }
-        $options                   = parse_ini_file(CONF_SAMPLE, true);
-        $options['purge']['limit'] = 0;
-        $options['model']          = array(
-            'class' => 'Database',
-        );
-        $options['model_options'] = array(
-            'dsn' => 'sqlite:' . $path,
-            'usr' => null,
-            'pwd' => null,
-            'opt' => array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION),
-        );
-        Helper::createIniFile(CONF, $options);
-        $model = new Model(new Configuration);
-        $model->getPaste('0000000000000000')->exists(); // triggers database table creation
-        $model->getPaste(Helper::getPasteId())->delete(); // deletes the cache
-
-        $db = new PDO(
-            $options['model_options']['dsn'],
-            $options['model_options']['usr'],
-            $options['model_options']['pwd'],
-            $options['model_options']['opt']
-        );
-        $statement = $db->prepare('INSERT INTO paste VALUES(?,?,?,?,?,?,?,?)');
-        $statement->execute(
-            array(
-                Helper::getPasteId(),
-                $pasteData['data'],
-                0,
-                0,
-                0,
-                json_encode($pasteData['meta']),
-                null,
-                null,
-            )
-        );
-        $statement->closeCursor();
-
-        $paste = $model->getPaste(Helper::getPasteId());
-        $this->assertNotEmpty($paste->getDeleteToken(), 'excercise the condition to load the data from storage');
-        $this->assertEquals('plaintext', $paste->get()['meta']['formatter'], 'paste got created with default formatter');
     }
 
     public function testCommentDefaults()
@@ -308,9 +257,16 @@ class ModelTest extends TestCase
         $comment->get();
         $comment->store();
 
-        $identicon = new Identicon();
-        $pngdata   = $identicon->getImageDataUri(TrafficLimiter::getHash(), 16);
-        $comment   = current($this->_model->getPaste(Helper::getPasteId())->get()['comments']);
+        $identicon = new Identicon(array(
+            'hash'  => TrafficLimiter::getHash(),
+            'size'  => 16,
+            'style' => array(
+                'backgroundColor'   => '#fff0', // fully transparent, for dark mode
+                'padding'           => 0,
+            ),
+        ));
+        $pngdata = $identicon->getImageDataUri('png');
+        $comment = current($this->_model->getPaste(Helper::getPasteId())->get()['comments']);
         $this->assertEquals($pngdata, $comment['meta']['icon'], 'icon gets set');
     }
 
@@ -410,26 +366,13 @@ class ModelTest extends TestCase
         $this->assertEquals((float) 300, (float) $paste['meta']['time_to_live'], 'remaining time is set correctly', 1.0);
     }
 
-    public function testCommentDeletion()
-    {
-        $pasteData = Helper::getPastePost();
-        $this->_model->getPaste(Helper::getPasteId())->delete();
-
-        $paste = $this->_model->getPaste();
-        $paste->setData($pasteData);
-        $paste->store();
-        $this->expectException(Exception::class);
-        $this->expectExceptionCode(64);
-        $paste->getComment(Helper::getPasteId())->delete();
-    }
-
     public function testPurge()
     {
         $conf  = new Configuration;
         $store = new Database($conf->getSection('model_options'));
         $store->delete(Helper::getPasteId());
-        $expired = Helper::getPaste(2, array('expire_date' => 1344803344));
-        $paste   = Helper::getPaste(2, array('expire_date' => time() + 3600));
+        $expired = Helper::getPaste(array('expire_date' => 1344803344));
+        $paste   = Helper::getPaste(array('expire_date' => time() + 3600));
         $keys    = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'x', 'y', 'z');
         $ids     = array();
         foreach ($keys as $key) {
@@ -536,6 +479,6 @@ class ModelTest extends TestCase
         $vz        = new Vizhash16x16();
         $pngdata   = 'data:image/png;base64,' . base64_encode($vz->generate(TrafficLimiter::getHash()));
         $comment   = current($this->_model->getPaste(Helper::getPasteId())->get()['comments']);
-        $this->assertEquals($pngdata, $comment['meta']['icon'], 'nickname triggers vizhash to be set');
+        $this->assertEquals($pngdata, $comment['meta']['icon'], 'vizhash was generated');
     }
 }

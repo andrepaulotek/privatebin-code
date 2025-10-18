@@ -52,7 +52,6 @@ class ViewTest extends TestCase
         $page->assign('BURNAFTERREADINGSELECTED', false);
         $page->assign('PASSWORD', true);
         $page->assign('FILEUPLOAD', false);
-        $page->assign('ZEROBINCOMPATIBILITY', false);
         $page->assign('INFO', 'example');
         $page->assign('NOTICE', 'example');
         $page->assign('LANGUAGESELECTION', '');
@@ -107,8 +106,8 @@ class ViewTest extends TestCase
                 $content,
                 $template . ': outputs error correctly'
             );
-            if ($template === 'yourlsproxy') {
-                // yourlsproxy template only displays error message
+            if ($template === 'shortenerproxy') {
+                // shortenerproxy template only displays error message
                 continue;
             }
             $this->assertMatchesRegularExpression(
@@ -154,7 +153,7 @@ class ViewTest extends TestCase
     public function testIsBootstrapTemplate()
     {
         $bootstrapTemplate    = 'bootstrap-dark';
-        $nonBootstrapTemplate = 'page';
+        $nonBootstrapTemplate = 'bootstrap5';
         $this->assertTrue(View::isBootstrapTemplate($bootstrapTemplate), 'Is bootstrap template');
         $this->assertFalse(View::isBootstrapTemplate($nonBootstrapTemplate), 'Is not bootstrap template');
     }

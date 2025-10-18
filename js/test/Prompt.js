@@ -2,8 +2,6 @@
 require('../common');
 
 describe('Prompt', function () {
-    // TODO: this does not test the prompt() fallback, since that isn't available
-    //       in nodejs -> replace the prompt in the "page" template with a modal
     describe('requestPassword & getPassword', function () {
         this.timeout(30000);
 
@@ -12,7 +10,7 @@ describe('Prompt', function () {
             'string',
             function (password) {
                 password = password.replace(/\r+|\n+/g, '');
-                var clean = jsdom('', {url: 'ftp://example.com/?0000000000000000'});
+                const clean = jsdom('', {url: 'ftp://example.com/?0000000000000000'});
                 $('body').html(
                     '<div id="passwordmodal" class="modal fade" role="dialog">' +
                     '<div class="modal-dialog"><div class="modal-content">' +
@@ -24,13 +22,15 @@ describe('Prompt', function () {
                 );
                 $.PrivateBin.Model.reset();
                 $.PrivateBin.Model.init();
+                // eslint-disable-next-line global-require
+                global.bootstrap = require('../bootstrap-5.3.8');
                 $.PrivateBin.Prompt.init();
                 $.PrivateBin.Prompt.requestPassword();
                 $('#passworddecrypt').val(password);
                 // TODO triggers error messages in current jsDOM version, find better solution
                 //$('#passwordform').submit();
                 //var result = $.PrivateBin.Prompt.getPassword();
-                var result = $('#passworddecrypt').val();
+                const result = $('#passworddecrypt').val();
                 $.PrivateBin.Model.reset();
                 // TODO triggers error messages in jsDOM since version 11
                 //clean();
@@ -39,4 +39,3 @@ describe('Prompt', function () {
         );
     });
 });
-

@@ -1,10 +1,10 @@
 # [![PrivateBin](https://cdn.rawgit.com/PrivateBin/assets/master/images/preview/logoSmall.png)](https://privatebin.info/)
 
-*Current version: 1.7.8*
+*Current version: 2.0.1*
 
 **PrivateBin** is a minimalist, open source online
 [pastebin](https://en.wikipedia.org/wiki/Pastebin)
-where the server has zero knowledge of pasted data.
+where the server has zero knowledge of stored data.
 
 Data is encrypted and decrypted in the browser using 256bit AES in
 [Galois Counter mode](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
@@ -12,9 +12,7 @@ Data is encrypted and decrypted in the browser using 256bit AES in
 This is a fork of ZeroBin, originally developed by
 [Sébastien Sauvage](https://github.com/sebsauvage/ZeroBin). PrivateBin was
 refactored to allow easier and cleaner extensions and has many additional
-features. It is, however, still fully compatible to the original ZeroBin 0.19
-data storage scheme. Therefore, such installations can be upgraded to PrivateBin
-without losing any data.
+features.
 
 ## What PrivateBin provides
 
@@ -81,7 +79,7 @@ file](https://github.com/PrivateBin/PrivateBin/wiki/Configuration):
 * File upload support, image, media and PDF preview (disabled by default, size
   limit adjustable)
 
-* Templates: By default there are bootstrap CSS, darkstrap and "classic ZeroBin"
+* Templates: By default there are bootstrap5, bootstrap CSS and darkstrap
   to choose from and it is easy to adapt these to your own websites layout or
   create your own.
 

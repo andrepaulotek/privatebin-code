@@ -14,6 +14,9 @@ namespace PrivateBin;
 use Exception;
 use PrivateBin\Persistence\ServerSalt;
 use PrivateBin\Persistence\TrafficLimiter;
+use PrivateBin\Proxy\AbstractProxy;
+use PrivateBin\Proxy\ShlinkProxy;
+use PrivateBin\Proxy\YourlsProxy;
 
 /**
  * Controller
@@ -27,21 +30,21 @@ class Controller
      *
      * @const string
      */
-    const VERSION = '1.7.8';
+    const VERSION = '2.0.1';
 
     /**
      * minimal required PHP version
      *
      * @const string
      */
-    const MIN_PHP_VERSION = '7.3.0';
+    const MIN_PHP_VERSION = '7.4.0';
 
     /**
-     * show the same error message if the paste expired or does not exist
+     * show the same error message if the document expired or does not exist
      *
      * @const string
      */
-    const GENERIC_ERROR = 'Paste does not exist, has expired or has been deleted.';
+    const GENERIC_ERROR = 'Document does not exist, has expired or has been deleted.';
 
     /**
      * configuration
@@ -149,7 +152,10 @@ class Controller
                 $this->_jsonld($this->_request->getParam('jsonld'));
                 return;
             case 'yourlsproxy':
-                $this->_yourlsproxy($this->_request->getParam('link'));
+                $this->_shortenerproxy(new YourlsProxy($this->_conf, $this->_request->getParam('link')));
+                break;
+            case 'shlinkproxy':
+                $this->_shortenerproxy(new ShlinkProxy($this->_conf, $this->_request->getParam('link')));
                 break;
         }
 
@@ -239,19 +245,15 @@ class Controller
     /**
      * Store new paste or comment
      *
-     * POST contains one or both:
-     * data = json encoded FormatV2 encrypted text (containing keys: iv,v,iter,ks,ts,mode,adata,cipher,salt,ct)
-     * attachment = json encoded FormatV2 encrypted text (containing keys: iv,v,iter,ks,ts,mode,adata,cipher,salt,ct)
-     *
-     * All optional data will go to meta information:
-     * expire (optional) = expiration delay (never,5min,10min,1hour,1day,1week,1month,1year,burn) (default:never)
-     * formatter (optional) = format to display the paste as (plaintext,syntaxhighlighting,markdown) (default:syntaxhighlighting)
-     * burnafterreading (optional) = if this paste may only viewed once ? (0/1) (default:0)
-     * opendiscusssion (optional) = is the discussion allowed on this paste ? (0/1) (default:0)
-     * attachmentname = json encoded FormatV2 encrypted text (containing keys: iv,v,iter,ks,ts,mode,adata,cipher,salt,ct)
-     * nickname (optional) = in discussion, encoded FormatV2 encrypted text nickname of author of comment (containing keys: iv,v,iter,ks,ts,mode,adata,cipher,salt,ct)
-     * parentid (optional) = in discussion, which comment this comment replies to.
-     * pasteid (optional) = in discussion, which paste this comment belongs to.
+     * POST contains:
+     * JSON encoded object with mandatory keys:
+     *   v = 2 (version)
+     *   adata (array)
+     *   ct (base64 encoded, encrypted text)
+     * meta (optional):
+     *   expire = expiration delay (never,5min,10min,1hour,1day,1week,1month,1year,burn) (default:1week)
+     * parentid (optional) = in discussions, which comment this comment replies to.
+     * pasteid (optional) = in discussions, which paste this comment belongs to.
      *
      * @access private
      * @return string
@@ -284,7 +286,7 @@ class Controller
             $this->_return_message(
                 1,
                 I18n::_(
-                    'Paste is limited to %s of encrypted data.',
+                    'Document is limited to %s of encrypted data.',
                     Filter::formatHumanReadableSize($sizelimit)
                 )
             );
@@ -313,7 +315,7 @@ class Controller
             try {
                 $this->_model->purge();
             } catch (Exception $e) {
-                error_log('Error purging pastes: ' . $e->getMessage() . PHP_EOL .
+                error_log('Error purging documents: ' . $e->getMessage() . PHP_EOL .
                     'Use the administration scripts statistics to find ' .
                     'damaged paste IDs and either delete them or restore them ' .
                     'from backup.');
@@ -323,14 +325,15 @@ class Controller
                 $paste->setData($data);
                 $paste->store();
             } catch (Exception $e) {
-                return $this->_return_message(1, $e->getMessage());
+                $this->_return_message(1, $e->getMessage());
+                return;
             }
             $this->_return_message(0, $paste->getId(), array('deletetoken' => $paste->getDeleteToken()));
         }
     }
 
     /**
-     * Delete an existing paste
+     * Delete an existing document
      *
      * @access private
      * @param  string $dataid
@@ -341,16 +344,16 @@ class Controller
         try {
             $paste = $this->_model->getPaste($dataid);
             if ($paste->exists()) {
-                // accessing this method ensures that the paste would be
+                // accessing this method ensures that the document would be
                 // deleted if it has already expired
                 $paste->get();
                 if (hash_equals($paste->getDeleteToken(), $deletetoken)) {
-                    // Paste exists and deletion token is valid: Delete the paste.
+                    // Document exists and deletion token is valid: Delete the it.
                     $paste->delete();
-                    $this->_status     = 'Paste was properly deleted.';
+                    $this->_status     = 'Document was properly deleted.';
                     $this->_is_deleted = true;
                 } else {
-                    $this->_error = 'Wrong deletion token. Paste was not deleted.';
+                    $this->_error = 'Wrong deletion token. Document was not deleted.';
                 }
             } else {
                 $this->_error = self::GENERIC_ERROR;
@@ -368,7 +371,7 @@ class Controller
     }
 
     /**
-     * Read an existing paste or comment, only allowed via a JSON API call
+     * Read an existing document, only allowed via a JSON API call
      *
      * @access private
      * @param  string $dataid
@@ -405,7 +408,7 @@ class Controller
         header('Content-Security-Policy: ' . $this->_conf->getKey('cspheader'));
         header('Cross-Origin-Resource-Policy: same-origin');
         header('Cross-Origin-Embedder-Policy: require-corp');
-        // disabled, because it prevents links from a paste to the same site to
+        // disabled, because it prevents links from a document to the same site to
         // be opened. Didn't work with `same-origin-allow-popups` either.
         // See issue https://github.com/PrivateBin/PrivateBin/issues/970 for details.
         // header('Cross-Origin-Opener-Policy: same-origin');
@@ -442,7 +445,7 @@ class Controller
         $metacspheader = str_replace(
             array(
                 'frame-ancestors \'none\'; ',
-                '; sandbox allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads',
+                '; sandbox allow-same-origin allow-scripts allow-forms allow-modals allow-downloads',
             ),
             '',
             $this->_conf->getKey('cspheader')
@@ -452,9 +455,9 @@ class Controller
         $page->assign('CSPHEADER', $metacspheader);
         $page->assign('ERROR', I18n::_($this->_error));
         $page->assign('NAME', $this->_conf->getKey('name'));
-        if ($this->_request->getOperation() === 'yourlsproxy') {
+        if (in_array($this->_request->getOperation(), array('shlinkproxy', 'yourlsproxy'), true)) {
             $page->assign('SHORTURL', $this->_status);
-            $page->draw('yourlsproxy');
+            $page->draw('shortenerproxy');
             return;
         }
         $page->assign('BASEPATH', I18n::_($this->_conf->getKey('basepath')));
@@ -473,7 +476,6 @@ class Controller
         $page->assign('BURNAFTERREADINGSELECTED', $this->_conf->getKey('burnafterreadingselected'));
         $page->assign('PASSWORD', $this->_conf->getKey('password'));
         $page->assign('FILEUPLOAD', $this->_conf->getKey('fileupload'));
-        $page->assign('ZEROBINCOMPATIBILITY', $this->_conf->getKey('zerobincompatibility'));
         $page->assign('LANGUAGESELECTION', $languageselection);
         $page->assign('LANGUAGES', I18n::getLanguageLabels(I18n::getAvailableLanguages()));
         $page->assign('TEMPLATESELECTION', $templateselection);
@@ -481,6 +483,7 @@ class Controller
         $page->assign('EXPIRE', $expire);
         $page->assign('EXPIREDEFAULT', $this->_conf->getKey('default', 'expire'));
         $page->assign('URLSHORTENER', $this->_conf->getKey('urlshortener'));
+        $page->assign('SHORTENBYDEFAULT', $this->_conf->getKey('shortenbydefault'));
         $page->assign('QRCODE', $this->_conf->getKey('qrcode'));
         $page->assign('EMAIL', $this->_conf->getKey('email'));
         $page->assign('HTTPWARNING', $this->_conf->getKey('httpwarning'));
@@ -531,18 +534,17 @@ class Controller
     }
 
     /**
-     * proxies link to YOURLS, updates status or error with response
+     * Proxies a link using the specified proxy class, and updates the status or error with the response.
      *
      * @access private
-     * @param string $link
+     * @param AbstractProxy $proxy The instance of the proxy class.
      */
-    private function _yourlsproxy($link)
+    private function _shortenerproxy(AbstractProxy $proxy)
     {
-        $yourls = new YourlsProxy($this->_conf, $link);
-        if ($yourls->isError()) {
-            $this->_error = $yourls->getError();
+        if ($proxy->isError()) {
+            $this->_error = $proxy->getError();
         } else {
-            $this->_status = $yourls->getUrl();
+            $this->_status = $proxy->getUrl();
         }
     }
 

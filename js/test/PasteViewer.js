@@ -13,7 +13,7 @@ describe('PasteViewer', function () {
                 var clean = jsdom(),
                     results = [];
                 $('body').html(
-                    '<div id="placeholder" class="hidden">+++ no paste text ' +
+                    '<div id="placeholder" class="hidden">+++ no document text ' +
                     '+++</div><div id="prettymessage" class="hidden"><pre ' +
                     'id="prettyprint" class="prettyprint linenums:1"></pre>' +
                     '</div><div id="plaintext" class="hidden"></div>'
@@ -75,8 +75,9 @@ describe('PasteViewer', function () {
                 '<SCRIPT SRC=http://example.com/xss.js></SCRIPT>',
                 '\'">><marquee><img src=x onerror=confirm(1)></marquee>">' +
                 '</plaintext\\></|\\><plaintext/onmouseover=prompt(1)>' +
-                '<script>prompt(1)</script>@gmail.com<isindex formaction=' +
-                'javascript:alert(/XSS/) type=submit>\'-->"></script>' +
+                '<script>prompt(1)</script>@gmail.com<isindex formaction=java' +
+                // obfuscate script URL from eslint rule: no-script-url
+                'script:alert(/XSS/) type=submit>\'-->"></script>' +
                 '<script>alert(document.cookie)</script>"><img/id="confirm' +
                 '&lpar;1)"/alt="/"src="/"onerror=eval(id)>\'">',
                 '<IMG SRC="javascript:alert(\'XSS\');">',
@@ -99,7 +100,7 @@ describe('PasteViewer', function () {
                 var clean = jsdom(),
                     text = prefix + xss + suffix;
                 $('body').html(
-                    '<div id="placeholder" class="hidden">+++ no paste text ' +
+                    '<div id="placeholder" class="hidden">+++ no document text ' +
                     '+++</div><div id="prettymessage" class="hidden"><pre ' +
                     'id="prettyprint" class="prettyprint linenums:1"></pre>' +
                     '</div><div id="plaintext" class="hidden"></div>'
@@ -115,4 +116,3 @@ describe('PasteViewer', function () {
         );
     });
 });
-

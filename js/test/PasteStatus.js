@@ -23,7 +23,7 @@ describe('PasteStatus', function () {
         this.timeout(30000);
 
         jsc.property(
-            'creates a notification after a successfull paste upload',
+            'creates a notification after a successful document upload',
             common.jscUrl(),
             common.jscUrl(false),
             function (url1, url2) {
@@ -50,7 +50,7 @@ describe('PasteStatus', function () {
             'nestring',
             common.jscUrl(),
             function (schema, domain, url) {
-                domain = domain.replace(/\P{Letter}|[\u00AA-\u00BA]/gu, '').toLowerCase();
+                domain = domain.replace(/\P{Letter}|[\u{AA}-\u{BA}]/gu, '').toLowerCase();
                 if (domain.length === 0) {
                     domain = 'a';
                 }
@@ -88,13 +88,13 @@ describe('PasteStatus', function () {
                         url: {
                             keyword: longUrl.address.join(''),
                             url: longUrlString,
-                            title: "example title",
-                            date: "2014-10-24 16:01:39",
-                            ip: "127.0.0.1"
+                            title: 'example title',
+                            date: '2014-10-24 16:01:39',
+                            ip: '127.0.0.1'
                         },
-                        status: "success",
-                        message: longUrlString + " added to database",
-                        title: "example title",
+                        status: 'success',
+                        message: longUrlString + ' added to database',
+                        title: 'example title',
                         shorturl: shortUrlString,
                         statusCode: 200
                     },
@@ -149,13 +149,12 @@ describe('PasteStatus', function () {
                         '<html lang="en">\n' +
                         '\t<head>\n' +
                         '\t\t<meta charset="utf-8" />\n' +
-                        '\t\t<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; base-uri \'self\'; form-action \'none\'; manifest-src \'self\'; connect-src * blob:; script-src \'self\' \'unsafe-eval\'; style-src \'self\'; font-src \'self\'; frame-ancestors \'none\'; img-src \'self\' data: blob:; media-src blob:; object-src blob:; sandbox allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads">\n' +
                         '\t\t<meta name="robots" content="noindex" />\n' +
                         '\t\t<meta name="google" content="notranslate">\n' +
                         '\t\t<title>PrivateBin</title>\n' +
                         '\t</head>\n' +
                         '\t<body>\n' +
-                        '\t\t<p>Your paste is <a id="pasteurl" href="' + shortUrlString + '">' + shortUrlString + '</a> <span id="copyhint">(Hit <kbd>Ctrl</kbd>+<kbd>c</kbd> to copy)</span></p>\n' +
+                        '\t\t<p>Your document is <a id="pasteurl" href="' + shortUrlString + '">' + shortUrlString + '</a> <span id="copyhint">(Hit <kbd>Ctrl</kbd>+<kbd>c</kbd> to copy)</span></p>\n' +
                         '\t</body>\n' +
                         '</html>',
                     clean = jsdom();
@@ -177,36 +176,7 @@ describe('PasteStatus', function () {
         this.timeout(30000);
 
         jsc.property(
-            'shows burn after reading message or remaining time v1',
-            'bool',
-            'nat',
-            common.jscUrl(),
-            function (burnafterreading, remainingTime, url) {
-                let clean = jsdom('', {url: common.urlToString(url)}),
-                    result;
-                $('body').html('<div id="remainingtime" class="hidden"></div>');
-                $.PrivateBin.PasteStatus.init();
-                $.PrivateBin.PasteStatus.showRemainingTime($.PrivateBin.Helper.PasteFactory({'meta': {
-                    'burnafterreading': burnafterreading,
-                    'remaining_time': remainingTime
-                }}));
-                if (burnafterreading) {
-                    result = $('#remainingtime').hasClass('foryoureyesonly') &&
-                            !$('#remainingtime').hasClass('hidden');
-                } else if (remainingTime) {
-                    result =!$('#remainingtime').hasClass('foryoureyesonly') &&
-                            !$('#remainingtime').hasClass('hidden');
-                } else {
-                    result = $('#remainingtime').hasClass('hidden') &&
-                            !$('#remainingtime').hasClass('foryoureyesonly');
-                }
-                clean();
-                return result;
-            }
-        );
-
-        jsc.property(
-            'shows burn after reading message or remaining time v2',
+            'shows burn after reading message or remaining time',
             'bool',
             'nat',
             common.jscUrl(),
@@ -247,10 +217,8 @@ describe('PasteStatus', function () {
                 );
                 $.PrivateBin.PasteStatus.init();
                 $.PrivateBin.PasteStatus.hideMessages();
-                assert.ok(
-                    $('#remainingtime').hasClass('hidden') &&
-                    $('#pastesuccess').hasClass('hidden')
-                );
+                assert.ok($('#remainingtime').hasClass('hidden'));
+                assert.ok($('#pastesuccess').hasClass('hidden'));
             }
         );
     });

@@ -1,5 +1,17 @@
 # PrivateBin version history
 
+## 2.0.3 (not yet released)
+* FIXED: Prevent arbitrary PHP file inclusion when enabling template switching
+* FIXED: Malicious filename can be used for self-XSS / HTML injection locally for users
+* FIXED: Unable to create a new paste from the cloned one when a JSON file attached (#1585)
+
+## 2.0.2 (2025-10-28)
+* CHANGED: Upgrading libraries to: DOMpurify 3.3.0
+* CHANGED: Refactored jQuery DOM element creation into plain JavaScript
+* FIXED: Sanitize file name in attachment size hint
+* FIXED: PHP OPcache module is optional again (#1679)
+* FIXED: bootstrap template password peek input group display
+
 ## 2.0.1 (2025-10-12)
 * ADDED: Auto shorten URLs with config option `shortenbydefault` (#1627)
 * ADDED: Added `shortenviashlink` endpoint with an `shlink` configuration section
@@ -35,7 +47,7 @@
 * FIXED: Page template scripts loading order (#1579)
 
 ## 1.7.7 (2025-06-28)
-* ADDED: Switching templates using the web ui (#1501)
+* ADDED: Switching templates using the web UI (#1501)
 * ADDED: Show file name and size on download page (#603)
 * CHANGED: Passing large data structures by reference to reduce memory consumption (#858)
 * CHANGED: Removed use of ctype functions and polyfill library for ctype

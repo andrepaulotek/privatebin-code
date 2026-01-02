@@ -30,7 +30,7 @@ for more information.
 ### Optional Requirements
 
 - PHP with GD extension (when using identicon or vizhash icons, jdenticon works
-  without it)
+  without it) and OPcache (for better performance)
 - a database supported by [PHP PDO](https://php.net/manual/book.pdo.php) and the
   PHP PDO extension (when using database storage)
 - a Ceph cluster with Rados gateway or AWS S3 storage (when using S3 storage)
@@ -203,7 +203,7 @@ CREATE INDEX parent ON prefix_comment(pasteid);
 CREATE TABLE prefix_config (
     id CHAR(16) NOT NULL, value TEXT, PRIMARY KEY (id)
 );
-INSERT INTO prefix_config VALUES('VERSION', '2.0.1');
+INSERT INTO prefix_config VALUES('VERSION', '2.0.3');
 ```
 
 In **PostgreSQL**, the `data`, `attachment`, `nickname` and `vizhash` columns
